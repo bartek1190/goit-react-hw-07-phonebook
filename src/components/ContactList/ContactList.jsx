@@ -1,23 +1,17 @@
 import { useDispatch, useSelector } from 'react-redux';
 import css from './ContactList.module.css';
-import { deleteContact } from 'components/redux/contactsSlice';
-import { getContacts, getStatusFilter } from 'components/redux/selectors';
+import { deleteContact } from '../../redux/operations';
+import {
+  selectError,
+  selectFilterContacts,
+  selectIsLoading,
+} from '../../redux/selectors';
 
 export const ContactList = () => {
   const dispatch = useDispatch();
-  const contacts = useSelector(getContacts);
-  const filter = useSelector(getStatusFilter);
-
-  const filterContacts = () => {
-    if (filter !== '') {
-      return contacts.filter(contact =>
-        contact.name.toLowerCase().includes(filter.toLowerCase())
-      );
-    }
-    return contacts;
-  };
-
-  const filteredContacts = filterContacts();
+  const error = useSelector(selectError);
+  const isLoading = useSelector(selectIsLoading);
+  const filteredContacts = useSelector(selectFilterContacts);
 
   const handleDelete = id => {
     dispatch(deleteContact(id));
@@ -29,7 +23,7 @@ export const ContactList = () => {
         filteredContacts.map(contact => (
           <li key={contact.id} className={css.listItem}>
             <p>
-              {contact.name}____{contact.number}
+              {contact.name}____{contact.phone}
             </p>
             <button type="button" onClick={() => handleDelete(contact.id)}>
               Delete
@@ -39,6 +33,7 @@ export const ContactList = () => {
       ) : (
         <div>No contacts available</div>
       )}
+      {isLoading && !error && <p>Updating...</p>}
     </ul>
   );
 };
